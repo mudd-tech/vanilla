@@ -33,6 +33,9 @@
         body.light-mode .text-white { color: #1a1823 !important; }
         body.light-mode .text-zinc-300, body.light-mode .text-zinc-400 { color: #4a4556 !important; }
         body.light-mode .bg-black\/60, body.light-mode .bg-black\/70, body.light-mode .bg-black\/80 { background: #f3f0fb !important; color: #000 !important; }
+        /* لوحة التحكم في اللايت مود: خلفية فاتحة + الأزرار الغامقة تفضل نصها أبيض */
+        body.light-mode #admin-dashboard { background: #f8f7fc !important; }
+        body.light-mode .bg-zinc-900.text-white, body.light-mode .bg-zinc-800.text-white, body.light-mode .bg-rose-600.text-white { color: #fff !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -124,7 +127,7 @@
             <h4 class="font-bold text-sm flex items-center gap-1.5">📍 بيانات التوصيل والدفع:</h4>
             
             <input type="text" id="cust-name" placeholder="اسمك الكريم..." class="input-theme w-full rounded-2xl p-3.5 text-xs focus:outline-none">
-            <input type="text" id="cust-phone" placeholder="رقم الموبايل للتواصل..." class="input-theme w-full rounded-2xl p-3.5 text-xs focus:outline-none">
+            <input type="tel" id="cust-phone" placeholder="رقم الموبايل للتواصل..." class="input-theme w-full rounded-2xl p-3.5 text-xs focus:outline-none">
             <input type="text" id="cust-address" placeholder="العنوان بالتفصيل (المدينة/الشارع)..." class="input-theme w-full rounded-2xl p-3.5 text-xs focus:outline-none">
             
             <div class="flex gap-2 pt-2 border-t">
@@ -134,19 +137,19 @@
             <p id="coupon-msg" class="text-[11px] font-semibold text-emerald-400 hidden"></p>
 
             <div class="space-y-2 pt-1">
-                <label class="block text-xs font-bold">💳 اختر طريقة الدفع:</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="setPaymentMethod('COD')" id="pay-cod-btn" class="p-3 rounded-2xl text-xs font-bold border bg-white text-black cursor-pointer">دفع عند الاستلام 💵</button>
-                    <button type="button" onclick="setPaymentMethod('ONLINE')" id="pay-online-btn" class="p-3 rounded-2xl text-xs font-bold border bg-black/50 text-zinc-300 cursor-pointer">انستاباي / محفظة 📱</button>
-                </div>
+                <label class="block text-xs font-bold">💳 الدفع (تحويل إلكتروني فقط):</label>
+                <p class="text-[11px] text-zinc-400">حوّلي إجمالي الأوردر على البيانات اللي تحت، وارفعي صورة التحويل، وبعدها نراجع التحويل ونأكد أوردرك.</p>
             </div>
 
-            <div id="online-payment-box" class="hidden bg-black/80 p-4 rounded-2xl border space-y-3 text-xs">
+            <div id="online-payment-box" class="bg-black/80 p-4 rounded-2xl border space-y-3 text-xs">
                 <p id="payment-instructions" class="text-zinc-300 font-semibold leading-relaxed"></p>
-                <button type="button" id="copy-wallet-btn" onclick="copyWalletNumber()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold border transition hidden">📋 نسخ رقم المحفظة</button>
-                <a id="instapay-direct-btn" href="#" target="_blank" class="w-full bg-white hover:bg-zinc-200 text-black py-3 rounded-xl font-black text-center flex items-center justify-center gap-2 shadow-lg transition hidden">🚀 فتح تطبيق انستاباي للتحويل فوراً</a>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="copyInstapay()" class="bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold border transition">📋 نسخ حساب انستاباي</button>
+                    <button type="button" id="copy-wallet-btn" onclick="copyWalletNumber()" class="bg-zinc-800 hover:bg-zinc-700 text-white py-2.5 rounded-xl font-bold border transition">📋 نسخ رقم المحفظة</button>
+                </div>
+                <a id="instapay-direct-btn" href="#" target="_blank" class="w-full bg-white hover:bg-zinc-200 text-black py-3 rounded-xl font-black text-center flex items-center justify-center gap-2 shadow-lg transition">🚀 فتح تطبيق انستاباي للتحويل فوراً</a>
                 <div>
-                    <label class="block text-zinc-400 mb-1">📸 ارفع سكرين شوت التحويل:</label>
+                    <label class="block text-zinc-400 mb-1">📸 ارفع سكرين شوت التحويل (مطلوب):</label>
                     <input type="file" id="transfer-screen-file" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-white file:text-black hover:file:bg-zinc-200 cursor-pointer">
                 </div>
                 <div id="screen-preview-container" class="hidden mt-2">
@@ -154,7 +157,7 @@
                 </div>
             </div>
 
-            <button onclick="sendOrderCloud()" class="w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-2xl transition shadow-xl flex items-center justify-center gap-2 cursor-pointer text-sm">
+            <button id="send-order-btn" onclick="sendOrderCloud()" class="w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-2xl transition shadow-xl flex items-center justify-center gap-2 cursor-pointer text-sm disabled:opacity-60 disabled:cursor-wait">
                 ☁️ إرسال الأوردر للمحل سحابياً وعبر الواتساب 🚀
             </button>
         </div>
@@ -216,25 +219,44 @@
                 <div id="pdf-table-container"></div>
             </div>
 
+            <!-- فحص الاتصال السحابي -->
+            <div class="vanilla-card p-4 rounded-2xl space-y-3">
+                <div class="flex justify-between items-center gap-2">
+                    <h4 class="font-bold text-white text-xs">☁️ حالة الربط السحابي (Firebase):</h4>
+                    <span id="cloud-status" class="text-[10px] font-bold px-2 py-1 rounded-full border text-zinc-400 border-white/20">⏳ جاري الاتصال...</span>
+                </div>
+                <button onclick="runCloudCheck()" class="w-full bg-white text-black text-xs py-2.5 rounded-xl font-black cursor-pointer hover:bg-zinc-200 transition">🔍 فحص الرفع السحابي الآن</button>
+                <div id="cloud-check-result" class="text-[11px] leading-relaxed space-y-1 text-zinc-300"></div>
+            </div>
+
             <div class="vanilla-card p-4 rounded-2xl space-y-3">
                 <h4 class="font-bold text-white text-xs">📊 إحصائيات الموقع الشاملة (Analytics):</h4>
+                <p class="text-[10px] text-zinc-400">اضغط على أي مربع لعرض تفاصيله 👆</p>
                 <div class="grid grid-cols-2 gap-2.5">
-                    <div class="bg-black/60 p-3 rounded-xl border border-white/10 text-center">
-                        <span class="text-[10px] text-zinc-400">إجمالي المبيعات</span>
+                    <button type="button" onclick="showStatDetails('sales')" class="bg-black/60 p-3 rounded-xl border border-white/10 text-center cursor-pointer hover:bg-white/10 transition">
+                        <span class="text-[10px] text-zinc-400">إجمالي المبيعات (المسلّمة)</span>
                         <h3 id="stat-total-sales" class="font-black text-white text-sm mt-1">0 ج.م</h3>
-                    </div>
-                    <div class="bg-black/60 p-3 rounded-xl border border-white/10 text-center">
+                    </button>
+                    <button type="button" onclick="showStatDetails('total')" class="bg-black/60 p-3 rounded-xl border border-white/10 text-center cursor-pointer hover:bg-white/10 transition">
                         <span class="text-[10px] text-zinc-400">إجمالي الأوردرات</span>
                         <h3 id="stat-total-orders" class="font-black text-white text-sm mt-1">0</h3>
-                    </div>
-                    <div class="bg-black/60 p-3 rounded-xl border border-white/10 text-center">
+                    </button>
+                    <button type="button" onclick="showStatDetails('new')" class="bg-black/60 p-3 rounded-xl border border-white/10 text-center cursor-pointer hover:bg-white/10 transition">
+                        <span class="text-[10px] text-amber-400">بانتظار التأكيد ⏳</span>
+                        <h3 id="stat-new-orders" class="font-black text-white text-sm mt-1">0</h3>
+                    </button>
+                    <button type="button" onclick="showStatDetails('confirmed')" class="bg-black/60 p-3 rounded-xl border border-white/10 text-center cursor-pointer hover:bg-white/10 transition">
+                        <span class="text-[10px] text-cyan-400">مؤكد / قيد التوصيل 🚚</span>
+                        <h3 id="stat-confirmed-orders" class="font-black text-white text-sm mt-1">0</h3>
+                    </button>
+                    <button type="button" onclick="showStatDetails('delivered')" class="bg-black/60 p-3 rounded-xl border border-white/10 text-center cursor-pointer hover:bg-white/10 transition">
                         <span class="text-[10px] text-emerald-400">تم التسليم 🟢</span>
                         <h3 id="stat-delivered-orders" class="font-black text-white text-sm mt-1">0</h3>
-                    </div>
-                    <div class="bg-black/60 p-3 rounded-xl border border-white/10 text-center">
-                        <span class="text-[10px] text-amber-400">قيد التوصيل ⏳</span>
-                        <h3 id="stat-pending-orders" class="font-black text-white text-sm mt-1">0</h3>
-                    </div>
+                    </button>
+                    <button type="button" onclick="showStatDetails('cancelled')" class="bg-black/60 p-3 rounded-xl border border-white/10 text-center cursor-pointer hover:bg-white/10 transition">
+                        <span class="text-[10px] text-red-400">ملغي ❌</span>
+                        <h3 id="stat-cancelled-orders" class="font-black text-white text-sm mt-1">0</h3>
+                    </button>
                 </div>
             </div>
 
@@ -253,6 +275,7 @@
                     <input type="password" id="new-admin-pin" placeholder="الرقم السري الجديد..." class="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
                     <button onclick="saveNewAdminPin()" class="bg-white text-black text-xs px-4 py-2 rounded-xl font-black cursor-pointer hover:bg-zinc-200 transition">تغيير 🔑</button>
                 </div>
+                <p class="text-[10px] text-zinc-400">الرقم السري بيتحفظ على الجهاز ده بس.</p>
             </div>
 
             <div class="vanilla-card p-4 rounded-2xl space-y-3">
@@ -264,7 +287,7 @@
 
             <div class="vanilla-card p-4 rounded-2xl space-y-3">
                 <h4 class="font-bold text-white text-xs">⚙️ إعدادات المتجر والدفع:</h4>
-                <input type="text" id="admin-whatsapp" placeholder="رقم واتساب الأوردرات..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
+                <input type="text" id="admin-whatsapp" placeholder="رقم واتساب الأوردرات (مثال: 201012345678)..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
                 <input type="text" id="instapay-link" placeholder="حساب انستاباي..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
                 <div class="grid grid-cols-3 gap-1.5">
                     <input type="text" id="wallet-name" placeholder="اسم المحفظة" class="w-full bg-black/60 border border-white/10 rounded-xl px-2 py-2 text-xs text-white">
@@ -292,7 +315,7 @@
                 <input type="number" id="p-price" placeholder="السعر الأصلي (ج.م)..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
                 <input type="number" id="p-discount" placeholder="نسبة الخصم % (اختياري)..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
                 <input type="file" id="p-img-file" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-white file:text-black hover:file:bg-zinc-200 cursor-pointer">
-                <button onclick="addNewProductCloud()" class="w-full bg-white text-black text-xs py-2.5 rounded-xl font-black cursor-pointer hover:bg-zinc-200 transition">نشر المنتج سحابياً 🚀</button>
+                <button id="add-product-btn" onclick="addNewProductCloud()" class="w-full bg-white text-black text-xs py-2.5 rounded-xl font-black cursor-pointer hover:bg-zinc-200 transition disabled:opacity-60 disabled:cursor-wait">نشر المنتج سحابياً 🚀</button>
             </div>
 
             <div class="space-y-2 pt-2">
@@ -304,6 +327,34 @@
                 <h4 class="font-bold text-zinc-300 text-xs">📋 أوردرات العملاء الواردة سحابياً (Real-time):</h4>
                 <div id="cloud-orders-list" class="space-y-2"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- تفاصيل الإحصائيات -->
+    <div id="stat-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden z-[70] overflow-y-auto p-4">
+        <div class="max-w-md mx-auto py-6 space-y-3">
+            <div class="vanilla-card p-4 rounded-2xl flex justify-between items-center gap-2">
+                <h3 id="stat-modal-title" class="font-black text-sm"></h3>
+                <button onclick="closeStatModal()" class="bg-zinc-900 px-3 py-1.5 rounded-xl text-xs text-white cursor-pointer font-bold border border-white/10 whitespace-nowrap">✕ إغلاق</button>
+            </div>
+            <div id="stat-modal-summary" class="vanilla-card p-4 rounded-2xl text-xs space-y-2"></div>
+            <div id="stat-modal-list" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- عرض صورة التحويل -->
+    <div id="img-viewer" onclick="closeImageViewer()" class="fixed inset-0 bg-black/95 hidden z-[90] flex items-center justify-center p-4 cursor-pointer">
+        <img id="img-viewer-img" class="max-w-full max-h-full object-contain rounded-xl">
+    </div>
+
+    <!-- نجاح إرسال الأوردر -->
+    <div id="order-success-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden z-[80] flex items-center justify-center p-4">
+        <div class="vanilla-card w-full max-w-sm p-6 rounded-3xl space-y-4 text-center border border-white/20">
+            <div class="text-4xl">✅</div>
+            <h3 class="font-black text-base">وصلنا أوردرك!</h3>
+            <p id="order-success-text" class="text-xs text-zinc-300 leading-relaxed"></p>
+            <a id="order-success-wa" href="#" target="_blank" class="block w-full bg-emerald-500 hover:bg-emerald-400 text-black py-3 rounded-xl font-black text-xs transition">💬 ابعتي تفاصيل الأوردر على واتساب</a>
+            <button onclick="closeOrderSuccess()" class="w-full bg-zinc-900 text-white py-3 rounded-xl cursor-pointer border text-xs font-bold">إغلاق</button>
         </div>
     </div>
 
@@ -334,6 +385,60 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
+        // ---------- أدوات مساعدة ----------
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        function normalizePhone(p) {
+            let d = String(p || '').replace(/\D/g, '');
+            if (d.startsWith('00')) d = d.slice(2);
+            if (d.startsWith('0')) d = '20' + d.slice(1);
+            return d;
+        }
+
+        function explainFirebaseError(e) {
+            const code = (e && e.code) || '';
+            const msg = (e && e.message) || String(e);
+            if (code === 'permission-denied') return 'مرفوض من قواعد أمان Firestore (permission-denied). افتح Firebase Console ← Firestore ← Rules وتأكد إنها بتسمح بالقراءة والكتابة على الـ collection ده، وإن وضع الاختبار ما انتهاش (بينتهي بعد 30 يوم).';
+            if (code === 'unavailable') return 'مفيش اتصال بسيرفر Firebase (النت ضعيف أو محجوب).';
+            if (code === 'not-found' || code === 'failed-precondition') return 'قاعدة Firestore غالباً مش متفعّلة في المشروع (أو محتاجة index): ' + msg;
+            if (code === 'resource-exhausted') return 'عدّيت حد الاستخدام المجاني (Quota) في Firebase.';
+            if (/exceeds the maximum|too large|longer than/i.test(msg)) return 'حجم البيانات أكبر من حد Firestore (1MB) — الصورة كبيرة.';
+            return (code || 'error') + ': ' + msg;
+        }
+
+        // ضغط الصور قبل رفعها: Firestore بيرفض أي مستند أكبر من 1MB وصور الموبايل أكبر من كده
+        function compressImage(file, maxSize = 800, quality = 0.7, maxChars = 600000) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error('تعذر قراءة الصورة'));
+                reader.onload = e => {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error('ملف الصورة غير صالح'));
+                    img.onload = () => {
+                        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+                        const w = Math.max(1, Math.round(img.width * scale));
+                        const h = Math.max(1, Math.round(img.height * scale));
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(0, 0, w, h);
+                        ctx.drawImage(img, 0, 0, w, h);
+                        let q = quality;
+                        let out = canvas.toDataURL('image/jpeg', q);
+                        while (out.length > maxChars && q > 0.3) {
+                            q -= 0.1;
+                            out = canvas.toDataURL('image/jpeg', q);
+                        }
+                        resolve(out);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ---------- الإعدادات (بتتحفظ سحابياً وبتتخزن نسخة محلية للسرعة) ----------
         let adminWhatsApp = localStorage.getItem('vanilla_whatsapp') || "201000000000";
         let instapay = localStorage.getItem('vanilla_instapay') || "store@instapay";
         let walletName = localStorage.getItem('vanilla_wallet_name') || "فودافون كاش";
@@ -355,22 +460,47 @@
             location: "https://maps.google.com"
         };
 
-        let paymentMethod = "COD";
         let transferScreenBase64 = "";
         let cart = [];
-        let wishlist = JSON.parse(localStorage.getItem('vanilla_wishlist')) || [];
+        // المفضلة بتتخزن كأرقام (IDs) بس، عشان صور المنتجات ما تملاش localStorage
+        let wishlist = [];
+        try {
+            wishlist = (JSON.parse(localStorage.getItem('vanilla_wishlist')) || []).map(x => String(x && typeof x === 'object' ? x.id : x));
+        } catch (e) { wishlist = []; }
         let appliedCouponDiscount = 0;
         let currentCategory = "الكل";
         let searchQuery = "";
         let products = [];
         let ordersDataCache = [];
+        let cloudError = null;
+        let sendingOrder = false;
 
         let defaultProducts = [
             { id: 1, name: "عطر فانيلا ملكي فاخر", price: 650, discount: 15, category: "العروض 🔥", image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=500", available: true },
             { id: 2, name: "مجموعة روج سائل فانيلا مات", price: 250, discount: 0, category: "Makeup 💄", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500", available: true }
         ];
 
-        // تطبيق الثيم (Dark / Light)
+        // ---------- حالات الأوردر ----------
+        const ST_NEW = 'جديد بانتظار المراجعة 📦';
+        const ST_CONFIRMED = 'تم تأكيد الأوردر ✅';
+        const ST_DELIVERED = 'تم التسليم بنجاح 🟢';
+        const ST_CANCELLED = 'ملغي ❌';
+
+        const STATUS_ACTIONS = {
+            confirmed: { text: ST_CONFIRMED, field: 'confirmedAt', ask: 'تأكيد الأوردر؟ اتأكد الأول إن التحويل وصل فعلاً.' },
+            delivered: { text: ST_DELIVERED, field: 'deliveredAt', ask: 'تأكيد إن الأوردر اتسلّم للعميلة؟' },
+            cancelled: { text: ST_CANCELLED, field: 'cancelledAt', ask: 'إلغاء الأوردر؟' }
+        };
+
+        function statusOf(o) {
+            const s = o.status || '';
+            if (s.includes('تم التسليم')) return 'delivered';
+            if (s.includes('تم تأكيد')) return 'confirmed';
+            if (s.includes('ملغي')) return 'cancelled';
+            return 'new';
+        }
+
+        // ---------- الثيم ----------
         function applyThemeMode() {
             let body = document.body;
             let btn = document.getElementById('theme-toggle-btn');
@@ -393,7 +523,7 @@
             document.getElementById('promo-banner-bar').innerText = promoText;
             let logoContainer = document.getElementById('header-logo-container');
             if(storeLogo) {
-                logoContainer.innerHTML = `<img src="${storeLogo}" class="w-full h-full object-cover">`;
+                logoContainer.innerHTML = `<img src="${esc(storeLogo)}" class="w-full h-full object-cover">`;
             } else {
                 logoContainer.innerHTML = `<span class="text-2xl font-black">V</span>`;
             }
@@ -401,6 +531,43 @@
             applyThemeMode();
         }
 
+        // ---------- الإعدادات السحابية ----------
+        async function saveSettingsCloud(data) {
+            await db.collection("vanilla_settings").doc("main").set(data, { merge: true });
+        }
+
+        async function cloudSave(data, okMsg) {
+            try {
+                await saveSettingsCloud(data);
+                alert(okMsg + "\n☁️ اتحفظ سحابياً وهيظهر لكل العملاء ✅");
+            } catch (e) {
+                alert("⚠️ اتحفظ على الجهاز ده بس ولم يُرفع للسحابة:\n" + explainFirebaseError(e));
+            }
+        }
+
+        function loadSettingsRealtime() {
+            db.collection("vanilla_settings").doc("main").onSnapshot(doc => {
+                if (!doc.exists) return;
+                const s = doc.data();
+                if (s.whatsapp) { adminWhatsApp = s.whatsapp; localStorage.setItem('vanilla_whatsapp', adminWhatsApp); }
+                if (s.instapay) { instapay = s.instapay; localStorage.setItem('vanilla_instapay', instapay); }
+                if (s.walletName) { walletName = s.walletName; localStorage.setItem('vanilla_wallet_name', walletName); }
+                if (s.walletNumber) { walletNumber = s.walletNumber; localStorage.setItem('vanilla_wallet_num', walletNumber); }
+                if (s.walletOwner) { walletOwner = s.walletOwner; localStorage.setItem('vanilla_wallet_owner', walletOwner); }
+                if (s.promo) { promoText = s.promo; localStorage.setItem('vanilla_promo', promoText); }
+                if (s.logo !== undefined) {
+                    storeLogo = s.logo || "";
+                    try { localStorage.setItem('vanilla_logo', storeLogo); } catch (e) {}
+                }
+                if (s.coupon && s.coupon.code) { activeCoupon = s.coupon; localStorage.setItem('vanilla_active_coupon', JSON.stringify(activeCoupon)); }
+                if (s.socials) { socialLinks = { ...socialLinks, ...s.socials }; localStorage.setItem('vanilla_socials', JSON.stringify(socialLinks)); }
+                applyThemeSettings();
+                renderFooterSocials();
+                renderPaymentBox();
+            }, err => console.warn("settings listener:", err));
+        }
+
+        // ---------- الإدارة ----------
         let logoClicks = 0;
         function handleLogoClick() {
             logoClicks++;
@@ -441,34 +608,32 @@
             if(!newPin || newPin.length < 4) { alert("أدخل رقم سري جديد لا يقل عن 4 أرقام!"); return; }
             adminPin = newPin;
             localStorage.setItem('vanilla_admin_pin', adminPin);
-            alert("تم تغيير الرقم السري بنجاح! 🔑");
+            alert("تم تغيير الرقم السري بنجاح على الجهاز ده! 🔑");
             document.getElementById('new-admin-pin').value = "";
         }
 
-        function saveAdminCoupon() {
+        async function saveAdminCoupon() {
             let code = document.getElementById('admin-coupon-code').value.trim().toUpperCase();
             let disc = parseFloat(document.getElementById('admin-coupon-discount').value) || 0;
-            if(!code || disc <= 0) { alert("أدخل كود صالح ونسبة خصم صحيحة!"); return; }
+            if(!code || disc <= 0 || disc > 100) { alert("أدخل كود صالح ونسبة خصم صحيحة (بين 1 و100)!"); return; }
             activeCoupon = { code, discount: disc };
             localStorage.setItem('vanilla_active_coupon', JSON.stringify(activeCoupon));
-            alert(`تم حفظ وتفعيل الكوبون (${code}) بنجاح بقيمة خصم ${disc}%! 🎟`);
+            await cloudSave({ coupon: activeCoupon }, `تم حفظ وتفعيل الكوبون (${code}) بخصم ${disc}%! 🎟`);
         }
 
         function applyCoupon() {
             let inputCode = document.getElementById('coupon-input').value.trim().toUpperCase();
             let msg = document.getElementById('coupon-msg');
-            if(inputCode === activeCoupon.code) {
+            if(inputCode && inputCode === activeCoupon.code) {
                 appliedCouponDiscount = activeCoupon.discount;
                 msg.innerText = `تم تطبيق كوبون الخصم بنجاح (${appliedCouponDiscount}%) 🎉`;
-                msg.classList.remove('hidden');
-                renderCart();
+                msg.className = "text-[11px] font-semibold text-emerald-400";
             } else {
                 appliedCouponDiscount = 0;
                 msg.innerText = "كود الخصم غير صحيح أو منتهي!";
-                msg.classList.remove('hidden');
                 msg.className = "text-[11px] font-semibold text-red-400";
-                renderCart();
             }
+            renderCart();
         }
 
         function closeAdminDashboard() { document.getElementById('admin-dashboard').classList.add('hidden'); }
@@ -476,68 +641,78 @@
         function renderFooterSocials() {
             let container = document.getElementById('footer-socials');
             container.innerHTML = `
-                <a href="${socialLinks.fb}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">📘 فيسبوك</a>
-                <a href="${socialLinks.ig}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">📸 انستجرام</a>
-                <a href="${socialLinks.tt}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">🎵 تيك توك</a>
-                <a href="${socialLinks.tg}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">✈ تليجرام</a>
-                <a href="${socialLinks.wa}" target="_blank" class="vanilla-card border text-emerald-400 text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">💬 واتساب</a>
-                <a href="${socialLinks.location}" target="_blank" class="vanilla-card border text-cyan-400 text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">📍 لوكيشن المحل</a>
+                <a href="${esc(socialLinks.fb)}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">📘 فيسبوك</a>
+                <a href="${esc(socialLinks.ig)}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">📸 انستجرام</a>
+                <a href="${esc(socialLinks.tt)}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">🎵 تيك توك</a>
+                <a href="${esc(socialLinks.tg)}" target="_blank" class="vanilla-card border text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">✈ تليجرام</a>
+                <a href="${esc(socialLinks.wa)}" target="_blank" class="vanilla-card border text-emerald-400 text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">💬 واتساب</a>
+                <a href="${esc(socialLinks.location)}" target="_blank" class="vanilla-card border text-cyan-400 text-xs p-3 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">📍 لوكيشن المحل</a>
             `;
         }
 
-        function setPaymentMethod(method) {
-            paymentMethod = method;
-            let codBtn = document.getElementById('pay-cod-btn');
-            let onlineBtn = document.getElementById('pay-online-btn');
-            let box = document.getElementById('online-payment-box');
+        // ---------- الدفع الإلكتروني (الوحيد المتاح) ----------
+        function getCartTotals() {
+            let subtotal = cart.reduce((s, i) => s + (i.finalPrice * i.qty), 0);
+            let total = appliedCouponDiscount > 0 ? Math.round(subtotal * (1 - appliedCouponDiscount / 100)) : subtotal;
+            return { subtotal, total };
+        }
+
+        function renderPaymentBox() {
             let inst = document.getElementById('payment-instructions');
             let instapayBtn = document.getElementById('instapay-direct-btn');
-            let copyBtn = document.getElementById('copy-wallet-btn');
+            if(!inst || !instapayBtn) return;
+            let { total } = getCartTotals();
+            inst.innerHTML = `💳 تفاصيل الدفع الإلكتروني:<br>• انستاباي: <b>${esc(instapay)}</b><br>• ${esc(walletName)}: <b>${esc(walletNumber)}</b> (باسم: <b>${esc(walletOwner)}</b>)<br>الإجمالي المطلوب: <b>${total} ج.م</b>`;
+            instapayBtn.href = `instapay://transfer?pa=${instapay}&am=${total}&cu=EGP`;
+        }
 
-            let subtotal = cart.reduce((s, i) => s + (i.finalPrice * i.qty), 0);
-            let cartTotal = Math.round(subtotal * (1 - appliedCouponDiscount / 100));
-
-            if(method === 'COD') {
-                codBtn.className = "p-3 rounded-2xl text-xs font-bold border bg-white text-black cursor-pointer";
-                onlineBtn.className = "p-3 rounded-2xl text-xs font-bold border bg-black/50 text-zinc-300 cursor-pointer";
-                box.classList.add('hidden');
+        function copyText(text, okMsg) {
+            if(navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => alert(okMsg), () => alert("انسخي يدوياً: " + text));
             } else {
-                onlineBtn.className = "p-3 rounded-2xl text-xs font-bold border bg-white text-black cursor-pointer";
-                codBtn.className = "p-3 rounded-2xl text-xs font-bold border bg-black/50 text-zinc-300 cursor-pointer";
-                box.classList.remove('hidden');
-                
-                inst.innerHTML = `💳 تفاصيل الدفع الإلكتروني:<br>• انستاباي: <b>${instapay}</b><br>• ${walletName}: <b>${walletNumber}</b> (باسم: <b>${walletOwner}</b>)<br>الإجمالي المطلوب: <b>${cartTotal} ج.م</b>`;
-                
-                instapayBtn.href = `instapay://transfer?pa=${instapay}&am=${cartTotal}&cu=EGP`;
-                instapayBtn.classList.remove('hidden');
-                copyBtn.classList.remove('hidden');
+                alert("انسخي يدوياً: " + text);
             }
         }
+        function copyWalletNumber() { copyText(walletNumber, "تم نسخ رقم المحفظة بنجاح: " + walletNumber); }
+        function copyInstapay() { copyText(instapay, "تم نسخ حساب انستاباي بنجاح: " + instapay); }
 
-        function copyWalletNumber() {
-            navigator.clipboard.writeText(walletNumber);
-            alert("تم نسخ رقم المحفظة بنجاح: " + walletNumber);
-        }
-
-        document.getElementById('transfer-screen-file').addEventListener('change', function(e) {
+        document.getElementById('transfer-screen-file').addEventListener('change', async function(e) {
             let file = e.target.files[0];
-            if(file) {
-                let reader = new FileReader();
-                reader.onload = function(event) {
-                    transferScreenBase64 = event.target.result;
-                    document.getElementById('screen-preview-img').src = transferScreenBase64;
-                    document.getElementById('screen-preview-container').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+            transferScreenBase64 = "";
+            document.getElementById('screen-preview-container').classList.add('hidden');
+            if(!file) return;
+            try {
+                transferScreenBase64 = await compressImage(file, 1000, 0.7, 500000);
+                document.getElementById('screen-preview-img').src = transferScreenBase64;
+                document.getElementById('screen-preview-container').classList.remove('hidden');
+            } catch(err) {
+                alert("تعذر تجهيز الصورة: " + err.message);
+                e.target.value = "";
             }
         });
 
+        // ---------- المنتجات ----------
+        function setCloudStatus(ok, text) {
+            let el = document.getElementById('cloud-status');
+            if(!el) return;
+            el.textContent = text;
+            el.className = 'text-[10px] font-bold px-2 py-1 rounded-full border ' + (ok ? 'text-emerald-400 border-emerald-500/40' : 'text-red-400 border-red-500/40');
+        }
+
         function loadProductsRealtime() {
             db.collection("vanilla_products").onSnapshot(snapshot => {
+                cloudError = null;
+                if(snapshot.metadata.fromCache) {
+                    setCloudStatus(false, '⚠️ بيانات من الكاش (مفيش اتصال)');
+                } else {
+                    setCloudStatus(true, '🟢 متصل بالسحابة');
+                }
                 if(snapshot.empty) {
-                    defaultProducts.forEach(p => {
-                        db.collection("vanilla_products").doc(p.id.toString()).set(p);
-                    });
+                    if(!snapshot.metadata.fromCache) {
+                        defaultProducts.forEach(p => {
+                            db.collection("vanilla_products").doc(p.id.toString()).set(p);
+                        });
+                    }
                     return;
                 }
                 products = [];
@@ -550,7 +725,10 @@
                 renderCategories();
                 renderProducts();
                 renderAdminProductsList();
+                renderWishlistModal();
             }, error => {
+                cloudError = error;
+                setCloudStatus(false, '❌ خطأ: ' + (error.code || 'اتصال'));
                 products = defaultProducts.map(d => ({ ...d, finalPrice: d.discount > 0 ? Math.round(d.price * (1 - d.discount / 100)) : d.price }));
                 renderCategories();
                 renderProducts();
@@ -565,11 +743,11 @@
         function renderCategories() {
             let bar = document.getElementById('categories-bar');
             let cats = ["الكل", "العروض 🔥"];
-            products.forEach(p => { if(p.available !== false && !cats.includes(p.category)) cats.push(p.category); });
+            products.forEach(p => { if(p.available !== false && p.category && !cats.includes(p.category)) cats.push(p.category); });
             bar.innerHTML = "";
             cats.forEach(c => {
                 let active = currentCategory === c;
-                bar.innerHTML += `<button onclick="filterCat('${c}')" class="text-xs px-4 py-2 rounded-xl cursor-pointer whitespace-nowrap ${active ? 'bg-white font-black text-black shadow-lg' : 'vanilla-card'}">${c}</button>`;
+                bar.innerHTML += `<button data-cat="${esc(c)}" onclick="filterCat(this.dataset.cat)" class="text-xs px-4 py-2 rounded-xl cursor-pointer whitespace-nowrap ${active ? 'bg-white font-black text-black shadow-lg' : 'vanilla-card'}">${esc(c)}</button>`;
             });
         }
 
@@ -578,11 +756,15 @@
         function renderProducts() {
             let grid = document.getElementById('products-grid');
             grid.innerHTML = "";
+
+            if(cloudError) {
+                grid.innerHTML = `<p class="text-[11px] text-amber-400 text-center py-2 col-span-2">⚠️ تعذر الاتصال بالسيرفر، المنتجات المعروضة قد لا تكون محدّثة.</p>`;
+            }
             
             let filtered = products.filter(p => {
                 if(p.available === false) return false;
                 if(searchQuery) {
-                    return p.name.toLowerCase().includes(searchQuery) || p.category.toLowerCase().includes(searchQuery);
+                    return (p.name || '').toLowerCase().includes(searchQuery) || (p.category || '').toLowerCase().includes(searchQuery);
                 }
                 if(currentCategory === "الكل") return true;
                 if(currentCategory === "العروض 🔥") return (p.discount && p.discount > 0) || p.category === "العروض 🔥";
@@ -590,12 +772,12 @@
             });
             
             if(filtered.length === 0) {
-                grid.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6 col-span-2">لا توجد منتجات مطابقة للبحث أو القسم حالياً..</p>`;
+                grid.innerHTML += `<p class="text-xs text-zinc-500 text-center py-6 col-span-2">لا توجد منتجات مطابقة للبحث أو القسم حالياً..</p>`;
                 return;
             }
 
             filtered.forEach((p) => {
-                let isFav = wishlist.some(item => item.id == p.id);
+                let isFav = wishlist.includes(String(p.id));
                 let discBadge = p.discount > 0 ? `<span class="absolute top-2 right-2 bg-white text-black text-[10px] font-black px-2.5 py-1 rounded-full shadow-lg">خصم ${p.discount}% 🔥</span>` : '';
                 let priceHtml = p.discount > 0 ? `
                     <div class="flex items-center gap-1.5">
@@ -610,10 +792,10 @@
                         <button onclick="toggleWishlist('${p.id}')" class="absolute top-2 left-2 bg-black/60 p-1.5 rounded-full border border-white/10 text-xs cursor-pointer hover:bg-black/90 transition">
                             ${isFav ? '❤️' : '🤍'}
                         </button>
-                        <img src="${p.image}" class="w-full h-28 object-cover rounded-2xl border">
+                        <img src="${esc(p.image)}" class="w-full h-28 object-cover rounded-2xl border">
                         <div>
-                            <span class="text-[9px] bg-white/10 px-2 py-0.5 rounded font-bold">${p.category}</span>
-                            <h4 class="font-bold text-xs mt-1 line-clamp-1">${p.name}</h4>
+                            <span class="text-[9px] bg-white/10 px-2 py-0.5 rounded font-bold">${esc(p.category)}</span>
+                            <h4 class="font-bold text-xs mt-1 line-clamp-1">${esc(p.name)}</h4>
                             ${priceHtml}
                         </div>
                         <button onclick="addToCart('${p.id}')" class="w-full bg-white hover:bg-zinc-200 text-black py-2 rounded-xl text-xs font-black cursor-pointer transition">إضافة للسلة 🛍️</button>
@@ -622,14 +804,11 @@
             });
         }
 
+        // ---------- المفضلة ----------
         function toggleWishlist(id) {
-            let p = products.find(item => item.id == id);
-            let idx = wishlist.findIndex(item => item.id == id);
-            if(idx > -1) {
-                wishlist.splice(idx, 1);
-            } else {
-                wishlist.push(p);
-            }
+            let sid = String(id);
+            let idx = wishlist.indexOf(sid);
+            if(idx > -1) { wishlist.splice(idx, 1); } else { wishlist.push(sid); }
             localStorage.setItem('vanilla_wishlist', JSON.stringify(wishlist));
             renderWishlistCount();
             renderProducts();
@@ -648,27 +827,29 @@
 
         function renderWishlistModal() {
             let container = document.getElementById('wishlist-items');
-            if(wishlist.length === 0) {
+            let items = wishlist.map(id => products.find(p => String(p.id) === id)).filter(Boolean);
+            if(items.length === 0) {
                 container.innerHTML = `<p class="text-center text-zinc-500 py-6">قائمة المفضلة فارغة..</p>`;
                 return;
             }
             container.innerHTML = "";
-            wishlist.forEach((i, idx) => {
+            items.forEach(i => {
                 container.innerHTML += `
                     <div class="vanilla-card flex justify-between items-center p-2.5 rounded-xl border">
                         <div class="flex items-center gap-2">
-                            <img src="${i.image}" class="w-10 h-10 object-cover rounded-lg">
-                            <div><p class="font-bold">${i.name}</p><span class="text-zinc-400">${i.finalPrice} ج.م</span></div>
+                            <img src="${esc(i.image)}" class="w-10 h-10 object-cover rounded-lg">
+                            <div><p class="font-bold">${esc(i.name)}</p><span class="text-zinc-400">${i.finalPrice} ج.م</span></div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button onclick="addToCart('${i.id}'); toggleWishlistModal();" class="bg-white text-black px-2.5 py-1.5 rounded-lg font-black text-[10px]">شراء 🛍️</button>
-                            <button onclick="wishlist.splice(${idx},1); localStorage.setItem('vanilla_wishlist', JSON.stringify(wishlist)); renderWishlistCount(); renderWishlistModal(); renderProducts();" class="text-red-400">✕</button>
+                            <button onclick="toggleWishlist('${i.id}')" class="text-red-400">✕</button>
                         </div>
                     </div>
                 `;
             });
         }
 
+        // ---------- إدارة المنتجات ----------
         function renderAdminProductsList() {
             let list = document.getElementById('admin-products-list');
             if(!list) return;
@@ -682,9 +863,9 @@
                 list.innerHTML += `
                     <div class="flex justify-between items-center bg-black/60 p-2.5 rounded-xl border border-white/10 text-xs">
                         <div class="flex items-center gap-2">
-                            <img src="${p.image}" class="w-9 h-9 object-cover rounded-lg border border-white/10">
+                            <img src="${esc(p.image)}" class="w-9 h-9 object-cover rounded-lg border border-white/10">
                             <div>
-                                <p class="font-bold text-white">${p.name} ${p.discount ? `(خصم ${p.discount}%)` : ''}</p>
+                                <p class="font-bold text-white">${esc(p.name)} ${p.discount ? `(خصم ${p.discount}%)` : ''}</p>
                                 <span class="text-zinc-300">${p.finalPrice} ج.م</span>
                             </div>
                         </div>
@@ -700,17 +881,19 @@
         }
 
         async function toggleProductStatus(id, newStatus) {
-            try { await db.collection("vanilla_products").doc(id).update({ available: newStatus }); } catch(err) { alert("خطأ: " + err.message); }
+            try { await db.collection("vanilla_products").doc(String(id)).update({ available: newStatus }); } catch(err) { alert("خطأ: " + explainFirebaseError(err)); }
         }
 
         async function deleteProduct(id) {
             if(confirm("هل أنت متأكد من حذف هذا المنتج نهائياً؟")) {
-                try { await db.collection("vanilla_products").doc(id).delete(); } catch(err) { alert("خطأ: " + err.message); }
+                try { await db.collection("vanilla_products").doc(String(id)).delete(); } catch(err) { alert("خطأ: " + explainFirebaseError(err)); }
             }
         }
 
+        // ---------- السلة ----------
         function addToCart(id) {
             let p = products.find(item => item.id == id);
+            if(!p) return;
             let item = cart.find(i => i.id == id);
             if(item) { item.qty++; } else { cart.push({ ...p, qty: 1 }); }
             renderCart();
@@ -729,6 +912,7 @@
 
             let totalQty = cart.reduce((s, i) => s + i.qty, 0);
             countEl.innerText = totalQty;
+            renderPaymentBox();
 
             if(cart.length === 0) {
                 container.innerHTML = `<p class="text-center text-zinc-500 py-6">السلة فارغة..</p>`;
@@ -743,7 +927,7 @@
                 subtotal += sub;
                 container.innerHTML += `
                     <div class="vanilla-card flex justify-between items-center p-2.5 rounded-xl border">
-                        <div><p class="font-bold">${i.name}</p><p class="text-[10px] text-zinc-400">العدد: ${i.qty}</p></div>
+                        <div><p class="font-bold">${esc(i.name)}</p><p class="text-[10px] text-zinc-400">العدد: ${i.qty}</p></div>
                         <div class="flex items-center gap-2"><span class="font-bold">${sub} ج.م</span><button onclick="cart.splice(${idx},1);renderCart();" class="text-red-400 cursor-pointer">✕</button></div>
                     </div>
                 `;
@@ -753,109 +937,276 @@
             totalEl.innerHTML = appliedCouponDiscount > 0 ? `<span class="line-through text-xs text-zinc-500 ml-2">${subtotal} ج.م</span> ${finalTotal} ج.م` : `${finalTotal} ج.م`;
         }
 
+        // ---------- إرسال الأوردر ----------
         async function sendOrderCloud() {
+            if(sendingOrder) return;
             let name = document.getElementById('cust-name').value.trim();
             let phone = document.getElementById('cust-phone').value.trim();
             let address = document.getElementById('cust-address').value.trim();
 
             if(!name || !phone || !address) { alert("من فضلك أدخل الاسم ورقم الهاتف وعنوان التوصيل!"); return; }
+            if(phone.replace(/\D/g, '').length < 10) { alert("رقم الموبايل غير صحيح!"); return; }
             if(cart.length === 0) { alert("سلة المشتريات فارغة!"); return; }
-            if(paymentMethod === 'ONLINE' && !transferScreenBase64) { alert("من فضلك ارفع سكرين شوت التحويل الإلكتروني!"); return; }
+            if(!transferScreenBase64) { alert("الدفع إلكتروني فقط: من فضلك حوّل المبلغ وارفع سكرين شوت التحويل!"); return; }
 
-            let orderId = "#VAN-" + Math.floor(1000 + Math.random() * 9000);
-            let subtotal = cart.reduce((s, i) => s + (i.finalPrice * i.qty), 0);
-            let total = appliedCouponDiscount > 0 ? Math.round(subtotal * (1 - appliedCouponDiscount / 100)) : subtotal;
+            let orderId = "#VAN-" + Date.now().toString().slice(-6);
+            let { subtotal, total } = getCartTotals();
+            let paymentLabel = `تحويل إلكتروني (${walletName}) 📱`;
+
+            // بنخزن بيانات المنتج الضرورية بس (من غير الصور) عشان المستند ما يعدّيش 1MB
+            let orderItems = cart.map(i => ({
+                id: String(i.id), name: i.name, price: i.price, discount: i.discount || 0, finalPrice: i.finalPrice, qty: i.qty
+            }));
 
             let orderData = {
                 orderId: orderId,
                 name: name,
                 phone: phone,
                 address: address,
-                items: cart,
+                items: orderItems,
+                subtotal: subtotal,
                 total: total,
                 coupon: appliedCouponDiscount > 0 ? activeCoupon.code : 'بدون كوبون',
-                payment: paymentMethod === 'COD' ? 'دفع عند الاستلام 💵' : `تحويل إلكتروني (${walletName}) 📱`,
-                transferScreen: transferScreenBase64 || null,
-                status: 'جديد بانتظار المراجعة 📦',
+                payment: paymentLabel,
+                transferScreen: transferScreenBase64,
+                status: ST_NEW,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
+
+            let btn = document.getElementById('send-order-btn');
+            sendingOrder = true;
+            btn.disabled = true;
+            btn.innerText = "⏳ جاري إرسال الأوردر...";
 
             try {
                 await db.collection("vanilla_orders").add(orderData);
 
-                let text = `🛍️ أوردر جديد من Vanilla Store:\n📌 رقم الأوردر: ${orderId}\n👤 العميلة: ${name}\n📞 الهاتف: ${phone}\n📍 العنوان: ${address}\n💳 طريقة الدفع: ${orderData.payment}\n`;
+                let text = `🛍️ أوردر جديد من Vanilla Store:\n📌 رقم الأوردر: ${orderId}\n👤 العميلة: ${name}\n📞 الهاتف: ${phone}\n📍 العنوان: ${address}\n💳 طريقة الدفع: ${paymentLabel}\n`;
                 if(appliedCouponDiscount > 0) text += `🎟 الكوبون المستخدم: ${activeCoupon.code} (خصم ${appliedCouponDiscount}%)\n`;
                 text += `\nالمنتجات:\n`;
-                cart.forEach(i => { text += `- ${i.name} (عدد: ${i.qty}) | ${i.finalPrice * i.qty} ج.م\n`; });
+                orderItems.forEach(i => { text += `- ${i.name} (عدد: ${i.qty}) | ${i.finalPrice * i.qty} ج.م\n`; });
                 text += `\n💰 الإجمالي الكلي: ${total} ج.م`;
-                if(transferScreenBase64) { text += `\n\n📸 (تم إرفاق سكرين شوت التحويل في النظام سحابياً)`; }
+                text += `\n\n📸 (تم إرفاق سكرين شوت التحويل في النظام سحابياً)`;
 
-                window.open(`https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(text)}`, '_blank');
-                alert("تم إرسال أوردرك بنجاح لـ Vanilla Store! 🍦✨");
+                document.getElementById('order-success-text').innerHTML = `رقم أوردرك: <b>${esc(orderId)}</b><br>الإجمالي: <b>${total} ج.م</b><br>هنراجع التحويل ونأكد أوردرك في أقرب وقت. ابعتي التفاصيل على واتساب عشان نتواصل معاكي أسرع.`;
+                document.getElementById('order-success-wa').href = `https://wa.me/${normalizePhone(adminWhatsApp)}?text=${encodeURIComponent(text)}`;
+                document.getElementById('order-success-modal').classList.remove('hidden');
+
                 cart = [];
                 transferScreenBase64 = "";
                 appliedCouponDiscount = 0;
+                document.getElementById('transfer-screen-file').value = "";
+                document.getElementById('screen-preview-container').classList.add('hidden');
+                document.getElementById('coupon-input').value = "";
+                document.getElementById('coupon-msg').classList.add('hidden');
                 renderCart();
-            } catch (error) { alert("خطأ: " + error.message); }
+            } catch (error) {
+                alert("تعذر إرسال الأوردر:\n" + explainFirebaseError(error));
+            } finally {
+                sendingOrder = false;
+                btn.disabled = false;
+                btn.innerText = "☁️ إرسال الأوردر للمحل سحابياً وعبر الواتساب 🚀";
+            }
         }
+
+        function closeOrderSuccess() { document.getElementById('order-success-modal').classList.add('hidden'); }
+
+        // ---------- الأوردرات في لوحة التحكم ----------
+        let ordersUnsub = null;
+        let currentStatType = null;
+
+        function fmtDate(o) {
+            if(o.createdAt && o.createdAt.toDate) {
+                let dt = o.createdAt.toDate();
+                return dt.toLocaleDateString('ar-EG') + ' - ' + dt.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            }
+            return "الآن";
+        }
+
+        function waCustomerLink(o) {
+            let code = statusOf(o);
+            let msgs = {
+                new: `أهلاً ${o.name} 🤍 وصلنا أوردرك ${o.orderId} وجاري مراجعة التحويل.`,
+                confirmed: `أهلاً ${o.name} 🤍 تم تأكيد أوردرك ${o.orderId} بإجمالي ${o.total} ج.م وجاري تجهيزه للتوصيل 🚚`,
+                delivered: `أهلاً ${o.name} 🤍 تم تسليم أوردرك ${o.orderId}. شكراً لثقتك في Vanilla Store!`,
+                cancelled: `أهلاً ${o.name} 🤍 للأسف تم إلغاء أوردرك ${o.orderId}. تواصلي معانا لو عندك أي استفسار.`
+            };
+            return `https://wa.me/${normalizePhone(o.phone)}?text=${encodeURIComponent(msgs[code])}`;
+        }
+
+        function renderOrderCard(o) {
+            let code = statusOf(o);
+            let statusColor = { new: 'text-amber-400', confirmed: 'text-cyan-400', delivered: 'text-emerald-400', cancelled: 'text-red-400' }[code];
+            let itemsStr = (o.items || []).map(i => `• ${esc(i.name)} (عدد ${i.qty}) — ${((i.finalPrice ?? i.price) || 0) * i.qty} ج.م`).join('<br>');
+            let screenHtml = o.transferScreen
+                ? `<button type="button" onclick="viewScreen('${o.id}')" class="block w-full bg-zinc-900 text-white text-center py-1.5 rounded-lg font-bold border border-white/20 mt-2 cursor-pointer">👁️ عرض سكرين شوت التحويل</button>`
+                : `<p class="text-amber-400 font-semibold mt-2">⚠️ مفيش سكرين شوت مرفق</p>`;
+
+            let actions = '';
+            if(code === 'new') {
+                actions = `
+                    <button onclick="setOrderStatus('${o.id}','confirmed')" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-lg font-bold cursor-pointer hover:bg-emerald-500/30 transition">✅ تأكيد الأوردر</button>
+                    <button onclick="setOrderStatus('${o.id}','cancelled')" class="bg-red-500/20 text-red-400 border border-red-500/40 px-3 py-1.5 rounded-lg font-bold cursor-pointer hover:bg-red-500/30 transition">❌ إلغاء</button>`;
+            } else if(code === 'confirmed') {
+                actions = `
+                    <button onclick="setOrderStatus('${o.id}','delivered')" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-lg font-bold cursor-pointer hover:bg-emerald-500/30 transition">🚚 تم التسليم</button>
+                    <button onclick="setOrderStatus('${o.id}','cancelled')" class="bg-red-500/20 text-red-400 border border-red-500/40 px-3 py-1.5 rounded-lg font-bold cursor-pointer hover:bg-red-500/30 transition">❌ إلغاء</button>`;
+            } else {
+                actions = `<span class="text-zinc-500 font-bold">منتهي ✔</span>`;
+            }
+
+            return `
+                <div class="vanilla-card p-3 rounded-xl text-xs space-y-1.5 border">
+                    <div class="flex justify-between font-bold gap-2"><span>${esc(o.orderId)} - ${esc(o.name)}</span><span class="text-zinc-400 text-[10px] whitespace-nowrap">${esc(fmtDate(o))}</span></div>
+                    <p class="text-zinc-300">📞 ${esc(o.phone)} | 📍 ${esc(o.address)}</p>
+                    <p class="text-emerald-400 font-semibold">💳 ${esc(o.payment)} | 💰 <b>${o.total} ج.م</b> ${o.coupon && o.coupon !== 'بدون كوبون' ? `(كوبون: ${esc(o.coupon)})` : ''}</p>
+                    <div class="bg-black/60 p-2 rounded text-zinc-300 border border-white/10">${itemsStr}</div>
+                    ${screenHtml}
+                    <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-white/10">
+                        <span class="font-bold ${statusColor}">${esc(o.status)}</span>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <a href="${waCustomerLink(o)}" target="_blank" class="bg-white/10 border border-white/20 px-3 py-1.5 rounded-lg font-bold">💬 واتساب العميلة</a>
+                            ${actions}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function setOrderStatus(docId, code) {
+            let a = STATUS_ACTIONS[code];
+            if(!a || !confirm(a.ask)) return;
+            try {
+                await db.collection("vanilla_orders").doc(docId).update({
+                    status: a.text,
+                    [a.field]: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch(err) { alert("خطأ: " + explainFirebaseError(err)); }
+        }
+
+        function viewScreen(docId) {
+            let o = ordersDataCache.find(x => x.id === docId);
+            if(!o || !o.transferScreen) return;
+            document.getElementById('img-viewer-img').src = o.transferScreen;
+            document.getElementById('img-viewer').classList.remove('hidden');
+        }
+        function closeImageViewer() { document.getElementById('img-viewer').classList.add('hidden'); }
 
         function loadCloudOrdersRealtime() {
             let list = document.getElementById('cloud-orders-list');
-            db.collection("vanilla_orders").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-                let totalSales = 0;
-                let totalOrders = snapshot.size;
-                let deliveredCount = 0;
-                let pendingCount = 0;
+            if(ordersUnsub) { ordersUnsub(); ordersUnsub = null; }
+            ordersUnsub = db.collection("vanilla_orders").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 ordersDataCache = [];
+                snapshot.forEach(doc => { ordersDataCache.push({ ...doc.data(), id: doc.id }); });
 
-                if(snapshot.empty) {
+                if(ordersDataCache.length === 0) {
                     list.innerHTML = `<p class="text-xs text-zinc-500 text-center py-3">لا توجد أوردرات حالياً..</p>`;
-                    updateAnalyticsUI(0, 0, 0, 0);
-                    return;
+                } else {
+                    list.innerHTML = ordersDataCache.map(renderOrderCard).join('');
                 }
 
-                list.innerHTML = "";
-                snapshot.forEach(doc => {
-                    let o = doc.data();
-                    let docId = doc.id;
-                    ordersDataCache.push({ id: docId, ...o });
-                    let isDelivered = o.status && o.status.includes('تم التسليم');
-
-                    if(isDelivered) {
-                        deliveredCount++;
-                        totalSales += (o.total || 0);
-                    } else {
-                        pendingCount++;
-                    }
-
-                    let dateStr = "الآن";
-                    if(o.createdAt && o.createdAt.toDate) {
-                        let dt = o.createdAt.toDate();
-                        dateStr = dt.toLocaleDateString('ar-EG') + ' - ' + dt.toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
-                    }
-
-                    let itemsStr = o.items ? o.items.map(i => `• ${i.name} (عدد ${i.qty})`).join('<br>') : '';
-                    let screenHtml = o.transferScreen ? `<a href="${o.transferScreen}" target="_blank" class="block bg-zinc-900 text-white text-center py-1.5 rounded-lg font-bold border border-white/20 mt-2">👁️ عرض سكرين شوت التحويل</a>` : '';
-                    
-                    list.innerHTML += `
-                        <div class="vanilla-card p-3 rounded-xl text-xs space-y-1.5 border">
-                            <div class="flex justify-between font-bold"><span>${o.orderId} - ${o.name}</span><span class="text-zinc-400 text-[10px]">${dateStr}</span></div>
-                            <p class="text-zinc-300">📞 ${o.phone} | 📍 ${o.address}</p>
-                            <p class="text-emerald-400 font-semibold">💳 ${o.payment} | 💰 <b>${o.total} ج.م</b> ${o.coupon !== 'بدون كوبون' ? `(كوبون: ${o.coupon})` : ''}</p>
-                            <div class="bg-black/60 p-2 rounded text-zinc-300 border border-white/10">${itemsStr}</div>
-                            ${screenHtml}
-                            <div class="flex justify-between items-center pt-2 border-t border-white/10">
-                                <span class="font-bold ${isDelivered ? 'text-emerald-400' : 'text-amber-400'}">${o.status}</span>
-                                ${!isDelivered ? `<button onclick="markAsDelivered('${docId}')" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-lg font-bold cursor-pointer hover:bg-emerald-500/30 transition">تسليم الأوردر ✅</button>` : '<span class="text-zinc-500 font-bold">منتهي ✔</span>'}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                updateAnalyticsUI(totalSales, totalOrders, deliveredCount, pendingCount);
+                updateAnalyticsUI();
+                renderStatDetails();
+            }, error => {
+                list.innerHTML = `<p class="text-xs text-red-400 text-center py-3">تعذر تحميل الأوردرات: ${esc(explainFirebaseError(error))}</p>`;
             });
         }
 
+        // ---------- الإحصائيات وتفاصيلها ----------
+        const STAT_CONFIG = {
+            sales:     { title: '💰 تفاصيل المبيعات (الأوردرات المسلّمة)', valueLabel: 'إجمالي المبيعات', filter: o => statusOf(o) === 'delivered' },
+            total:     { title: '📦 كل الأوردرات', valueLabel: 'قيمة كل الأوردرات', filter: () => true },
+            new:       { title: '⏳ أوردرات بانتظار التأكيد', valueLabel: 'قيمة الأوردرات', filter: o => statusOf(o) === 'new' },
+            confirmed: { title: '🚚 أوردرات مؤكدة / قيد التوصيل', valueLabel: 'قيمة الأوردرات', filter: o => statusOf(o) === 'confirmed' },
+            delivered: { title: '🟢 أوردرات تم تسليمها', valueLabel: 'قيمة الأوردرات', filter: o => statusOf(o) === 'delivered' },
+            cancelled: { title: '❌ الأوردرات الملغية', valueLabel: 'قيمة الأوردرات', filter: o => statusOf(o) === 'cancelled' }
+        };
+
+        function updateAnalyticsUI() {
+            let count = k => ordersDataCache.filter(STAT_CONFIG[k].filter).length;
+            let sales = ordersDataCache.filter(STAT_CONFIG.sales.filter).reduce((s, o) => s + (o.total || 0), 0);
+            document.getElementById('stat-total-sales').innerText = sales + " ج.م";
+            document.getElementById('stat-total-orders').innerText = ordersDataCache.length;
+            document.getElementById('stat-new-orders').innerText = count('new');
+            document.getElementById('stat-confirmed-orders').innerText = count('confirmed');
+            document.getElementById('stat-delivered-orders').innerText = count('delivered');
+            document.getElementById('stat-cancelled-orders').innerText = count('cancelled');
+        }
+
+        function showStatDetails(type) {
+            currentStatType = type;
+            renderStatDetails();
+            document.getElementById('stat-modal').classList.remove('hidden');
+        }
+
+        function closeStatModal() {
+            currentStatType = null;
+            document.getElementById('stat-modal').classList.add('hidden');
+        }
+
+        function renderStatDetails() {
+            if(!currentStatType) return;
+            let cfg = STAT_CONFIG[currentStatType];
+            let list = ordersDataCache.filter(cfg.filter);
+            let sum = list.reduce((s, o) => s + (o.total || 0), 0);
+
+            let prod = {};
+            list.forEach(o => (o.items || []).forEach(i => { prod[i.name] = (prod[i.name] || 0) + (i.qty || 0); }));
+            let prodRows = Object.entries(prod).sort((a, b) => b[1] - a[1]);
+            let prodHtml = prodRows.length
+                ? prodRows.map(([n, q]) => `<div class="flex justify-between"><span>${esc(n)}</span><b>× ${q}</b></div>`).join('')
+                : `<p class="text-zinc-500">—</p>`;
+
+            document.getElementById('stat-modal-title').innerText = cfg.title;
+            document.getElementById('stat-modal-summary').innerHTML = `
+                <div class="flex justify-between"><span>عدد الأوردرات:</span><b>${list.length}</b></div>
+                <div class="flex justify-between"><span>${cfg.valueLabel}:</span><b>${sum} ج.م</b></div>
+                <div class="pt-2 border-t border-white/10 space-y-1">
+                    <p class="font-bold">🧴 المنتجات في الأوردرات دي:</p>
+                    ${prodHtml}
+                </div>
+            `;
+            document.getElementById('stat-modal-list').innerHTML = list.length
+                ? list.map(renderOrderCard).join('')
+                : `<p class="text-xs text-zinc-400 text-center py-6">لا توجد أوردرات هنا حالياً..</p>`;
+        }
+
+        // ---------- فحص الاتصال السحابي ----------
+        async function runCloudCheck() {
+            let out = document.getElementById('cloud-check-result');
+            out.innerHTML = '⏳ جاري الفحص...';
+            let lines = [];
+            let add = (ok, txt) => lines.push(`${ok ? '✅' : '❌'} ${txt}`);
+
+            if(!navigator.onLine) add(false, 'الجهاز مش متصل بالإنترنت');
+
+            let ref = db.collection('vanilla_settings').doc('healthcheck');
+            try {
+                let stamp = Date.now();
+                await ref.set({ stamp: stamp, at: firebase.firestore.FieldValue.serverTimestamp() });
+                add(true, 'الكتابة على Firestore شغالة');
+                let snap = await ref.get({ source: 'server' });
+                if(snap.exists && snap.data().stamp === stamp) add(true, 'القراءة من السيرفر شغالة (البيانات رجعت مطابقة)');
+                else add(false, 'القراءة رجعت بيانات غير مطابقة');
+            } catch(e) { add(false, 'الكتابة/القراءة (vanilla_settings): ' + explainFirebaseError(e)); }
+
+            try {
+                let s = await db.collection('vanilla_products').get({ source: 'server' });
+                add(true, `قراءة المنتجات شغالة (${s.size} منتج)`);
+            } catch(e) { add(false, 'قراءة المنتجات: ' + explainFirebaseError(e)); }
+
+            try {
+                let s = await db.collection('vanilla_orders').limit(1).get({ source: 'server' });
+                add(true, `قراءة الأوردرات شغالة (${s.size ? 'فيه أوردرات' : 'لسه مفيش أوردرات'})`);
+            } catch(e) { add(false, 'قراءة الأوردرات: ' + explainFirebaseError(e)); }
+
+            let allOk = lines.every(l => l.startsWith('✅'));
+            setCloudStatus(allOk, allOk ? '🟢 متصل بالسحابة' : '❌ فيه مشكلة في الربط');
+            lines.push('ℹ️ فحص كتابة الأوردرات نفسها بيتم بأوردر تجريبي حقيقي (الفحص ده ما بيعملش أوردرات وهمية).');
+            out.innerHTML = lines.map(l => `<p>${esc(l)}</p>`).join('');
+        }
+
+        // ---------- تصدير PDF ----------
         function exportOrdersPDF() {
             if(ordersDataCache.length === 0) { alert("لا توجد أوردرات لتصديرها!"); return; }
             
@@ -881,13 +1232,13 @@
             ordersDataCache.forEach(o => {
                 html += `
                     <tr>
-                        <td style="padding: 6px; border: 1px solid #ddd;">${o.orderId}</td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">${o.name}</td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">${o.phone}</td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">${o.address}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">${esc(o.orderId)}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">${esc(o.name)}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">${esc(o.phone)}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">${esc(o.address)}</td>
                         <td style="padding: 6px; border: 1px solid #ddd;">${o.total} ج.م</td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">${o.payment}</td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">${o.status}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">${esc(o.payment)}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">${esc(o.status)}</td>
                     </tr>
                 `;
             });
@@ -911,21 +1262,8 @@
             });
         }
 
-        function updateAnalyticsUI(sales, orders, delivered, pending) {
-            document.getElementById('stat-total-sales').innerText = sales + " ج.م";
-            document.getElementById('stat-total-orders').innerText = orders;
-            document.getElementById('stat-delivered-orders').innerText = delivered;
-            document.getElementById('stat-pending-orders').innerText = pending;
-        }
-
-        async function markAsDelivered(docId) {
-            try {
-                await db.collection("vanilla_orders").doc(docId).update({ status: 'تم التسليم بنجاح 🟢' });
-                alert("تم تحديث حالة الأوردر بنجاح! 🟢");
-            } catch(err) { alert("خطأ: " + err.message); }
-        }
-
-        function addNewProductCloud() {
+        // ---------- إضافة منتج ----------
+        async function addNewProductCloud() {
             let name = document.getElementById('p-name').value.trim();
             let cat = document.getElementById('p-cat').value.trim();
             let price = parseFloat(document.getElementById('p-price').value);
@@ -933,51 +1271,55 @@
             let imgFile = document.getElementById('p-img-file').files[0];
 
             if(!name || isNaN(price)) { alert("أدخل اسم المنتج والسعر بشكل صحيح!"); return; }
+            if(discount < 0 || discount > 100) { alert("نسبة الخصم لازم تكون بين 0 و100!"); return; }
 
-            let saveToDb = (imgUrl) => {
+            let btn = document.getElementById('add-product-btn');
+            btn.disabled = true;
+            btn.innerText = "⏳ جاري النشر...";
+            try {
+                let imgUrl = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500";
+                if(imgFile) imgUrl = await compressImage(imgFile, 700, 0.7, 300000);
+
                 let newId = Date.now().toString();
                 let newProd = { id: newId, name, category: cat, price, discount, image: imgUrl, available: true };
-                db.collection("vanilla_products").doc(newId).set(newProd).then(() => {
-                    alert("تم نشر المنتج سحابياً بنجاح! ✨");
-                    document.getElementById('p-name').value = "";
-                    document.getElementById('p-price').value = "";
-                    document.getElementById('p-discount').value = "";
-                    document.getElementById('p-img-file').value = "";
-                }).catch(err => alert("خطأ: " + err.message));
-            };
+                await db.collection("vanilla_products").doc(newId).set(newProd);
 
-            if(imgFile) {
-                let reader = new FileReader();
-                reader.onload = function(e) { saveToDb(e.target.result); };
-                reader.readAsDataURL(imgFile);
-            } else {
-                saveToDb("https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500");
+                alert("تم نشر المنتج سحابياً بنجاح! ✨");
+                document.getElementById('p-name').value = "";
+                document.getElementById('p-price').value = "";
+                document.getElementById('p-discount').value = "";
+                document.getElementById('p-img-file').value = "";
+            } catch(err) {
+                alert("خطأ: " + explainFirebaseError(err));
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "نشر المنتج سحابياً 🚀";
             }
         }
 
-        function saveThemeAndBannerSettings() {
-            promoText = document.getElementById('admin-banner-text').value.trim();
+        // ---------- حفظ الإعدادات ----------
+        async function saveThemeAndBannerSettings() {
+            let newPromo = document.getElementById('admin-banner-text').value.trim();
             let logoFile = document.getElementById('logo-img-file').files[0];
-
-            let saveLogoAndApply = (logoUrl) => {
-                if(logoUrl) storeLogo = logoUrl;
+            try {
+                if(logoFile) storeLogo = await compressImage(logoFile, 256, 0.85, 80000);
+                if(newPromo) promoText = newPromo;
                 localStorage.setItem('vanilla_promo', promoText);
-                localStorage.setItem('vanilla_logo', storeLogo);
+                try { localStorage.setItem('vanilla_logo', storeLogo); } catch(e) {}
                 applyThemeSettings();
-                alert("تم حفظ المظهر والشريط الإعلاني واللوجو بنجاح! 🎨");
-            };
-
-            if(logoFile) {
-                let reader = new FileReader();
-                reader.onload = function(e) { saveLogoAndApply(e.target.result); };
-                reader.readAsDataURL(logoFile);
-            } else {
-                saveLogoAndApply();
+                document.getElementById('logo-img-file').value = "";
+            } catch(err) {
+                alert("تعذر تجهيز اللوجو: " + err.message);
+                return;
             }
+            await cloudSave({ promo: promoText, logo: storeLogo }, "تم حفظ المظهر والشريط الإعلاني واللوجو! 🎨");
         }
 
-        function saveStoreSettings() {
-            adminWhatsApp = document.getElementById('admin-whatsapp').value.trim();
+        async function saveStoreSettings() {
+            let wa = document.getElementById('admin-whatsapp').value.trim();
+            if(normalizePhone(wa).length < 10) { alert("رقم الواتساب غير صحيح! اكتبه بالصيغة الدولية مثل 201012345678"); return; }
+
+            adminWhatsApp = wa;
             instapay = document.getElementById('instapay-link').value.trim();
             walletName = document.getElementById('wallet-name').value.trim();
             walletNumber = document.getElementById('wallet-number').value.trim();
@@ -988,10 +1330,12 @@
             localStorage.setItem('vanilla_wallet_name', walletName);
             localStorage.setItem('vanilla_wallet_num', walletNumber);
             localStorage.setItem('vanilla_wallet_owner', walletOwner);
-            alert("تم حفظ إعدادات الدفع بنجاح! 💾");
+            renderPaymentBox();
+
+            await cloudSave({ whatsapp: adminWhatsApp, instapay, walletName, walletNumber, walletOwner }, "تم حفظ إعدادات الدفع! 💾");
         }
 
-        function saveSocialSettings() {
+        async function saveSocialSettings() {
             socialLinks.fb = document.getElementById('social-fb').value.trim();
             socialLinks.ig = document.getElementById('social-ig').value.trim();
             socialLinks.tt = document.getElementById('social-tt').value.trim();
@@ -1001,11 +1345,14 @@
 
             localStorage.setItem('vanilla_socials', JSON.stringify(socialLinks));
             renderFooterSocials();
-            alert("تم حفظ روابط السوشيال ميديا واللوكيشن بنجاح! 📱");
+            await cloudSave({ socials: socialLinks }, "تم حفظ روابط السوشيال ميديا واللوكيشن! 📱");
         }
 
+        // ---------- التشغيل ----------
         applyThemeSettings();
         renderFooterSocials();
+        renderPaymentBox();
+        loadSettingsRealtime();
         loadProductsRealtime();
         renderCart();
     </script>
